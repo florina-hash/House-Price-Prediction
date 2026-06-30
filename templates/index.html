@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AeroPredict - Advanced House Price Estimator</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://img.icons8.com/color/48/home.png">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- CSS stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2.0">
+</head>
+<body>
+    <!-- Ambient Glowing Background Blobs -->
+    <div class="glow-container">
+        <div class="glow-blob blob-primary"></div>
+        <div class="glow-blob blob-secondary"></div>
+        <div class="glow-blob blob-tertiary"></div>
+    </div>
+
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <div class="logo-icon">
+                        <i data-lucide="home"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>AeroPredict</h1>
+                        <span class="version">v2.0 PRO</span>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <button class="nav-btn active" data-target="dashboard">
+                            <i data-lucide="layout-dashboard"></i>
+                            <span>Dashboard</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="nav-btn" data-target="dataset">
+                            <i data-lucide="database"></i>
+                            <span>Dataset Manager</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="nav-btn" data-target="analytics">
+                            <i data-lucide="line-chart"></i>
+                            <span>Analytics & Plot</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="theme-switch-container">
+                    <span class="theme-label">Theme Mode</span>
+                    <button id="themeToggle" class="theme-toggle-btn" aria-label="Toggle Theme">
+                        <i data-lucide="moon" class="icon-dark"></i>
+                        <i data-lucide="sun" class="icon-light"></i>
+                    </button>
+                </div>
+                <div class="system-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Model Active</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace Area -->
+        <main class="main-content">
+            <!-- Header bar -->
+            <header class="content-header">
+                <div class="welcome-text">
+                    <h2 id="pageTitle">Prediction Dashboard</h2>
+                    <p class="subtitle" id="pageSubtitle">Real-time linear regression modeling and estimation</p>
+                </div>
+                <div class="quick-stats">
+                    <div class="stat-bubble" title="Total samples in dataset">
+                        <i data-lucide="database"></i>
+                        <span id="headerSampleCount">-- points</span>
+                    </div>
+                    <div class="stat-bubble" title="R-squared Model Accuracy">
+                        <i data-lucide="gauge"></i>
+                        <span id="headerR2">R²: --</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- TAB 1: DASHBOARD -->
+            <div id="tab-dashboard" class="tab-panel active">
+                <div class="dashboard-grid">
+                    <!-- Left: Estimation Console -->
+                    <div class="glass-card prediction-console">
+                        <div class="card-header">
+                            <div class="header-icon"><i data-lucide="sliders"></i></div>
+                            <h3>Valuation Console</h3>
+                        </div>
+                        
+                        <div class="unit-toggle-wrapper">
+                            <label class="control-label">Measurement Unit</label>
+                            <div class="radio-toggle-group">
+                                <input type="radio" id="unitSqft" name="unit" value="sqft" checked>
+                                <label for="unitSqft">Square Feet (sq ft)</label>
+                                <input type="radio" id="unitSqm" name="unit" value="sqm">
+                                <label for="unitSqm">Square Meters (sq m)</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group range-control">
+                            <div class="label-row">
+                                <label for="sqftInput">Property Size</label>
+                                <div class="value-display">
+                                    <input type="number" id="sqftInput" min="500" max="10000" value="2500" class="numerical-input">
+                                    <span class="unit-label">sq ft</span>
+                                </div>
+                            </div>
+                            <input type="range" id="sqftSlider" min="500" max="10000" value="2500" class="range-slider">
+                            <div class="range-bounds">
+                                <span id="minRangeLabel">500 sq ft</span>
+                                <span id="maxRangeLabel">10,000 sq ft</span>
+                            </div>
+                        </div>
+
+                        <div class="presets-section">
+                            <label class="control-label">Quick Property Presets</label>
+                            <div class="preset-badges">
+                                <button class="preset-btn" data-sqft="500" title="Typical Studio Apartment">
+                                    <i data-lucide="door-closed"></i> Studio
+                                </button>
+                                <button class="preset-btn" data-sqft="1200" title="Medium-sized Apartment">
+                                    <i data-lucide="layout"></i> Apartment
+                                </button>
+                                <button class="preset-btn" data-sqft="2500" title="Standard Family Home">
+                                    <i data-lucide="home"></i> Family Home
+                                </button>
+                                <button class="preset-btn" data-sqft="4500" title="Large Suburban Villa">
+                                    <i data-lucide="tent"></i> Villa
+                                </button>
+                                <button class="preset-btn" data-sqft="8000" title="Luxury Estate / Mansion">
+                                    <i data-lucide="castle"></i> Mansion
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Live Valuation Display -->
+                    <div class="glass-card valuation-display">
+                        <div class="valuation-glowing-backdrop"></div>
+                        <div class="valuation-content">
+                            <span class="valuation-subtitle">Estimated Market Value</span>
+                            <div class="price-container">
+                                <span class="currency-symbol">$</span>
+                                <span id="predictedPrice" class="price-value">0</span>
+                            </div>
+                            <div class="price-confidence-indicator">
+                                <div class="indicator-bar">
+                                    <div class="indicator-fill" style="width: 85%;"></div>
+                                </div>
+                                <span class="indicator-text">Calculated using live dataset regression</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secondary row: Stats Overview -->
+                <div class="stats-overview-grid">
+                    <div class="glass-card stat-metric-card">
+                        <div class="metric-icon primary"><i data-lucide="shield-check"></i></div>
+                        <div class="metric-details">
+                            <span class="metric-title">Coefficient of Determination (R²)</span>
+                            <h4 id="r2Metric" class="metric-value">--</h4>
+                            <p class="metric-description">Evaluates the accuracy of predictions against data variance.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card stat-metric-card">
+                        <div class="metric-icon secondary"><i data-lucide="alert-triangle"></i></div>
+                        <div class="metric-details">
+                            <span class="metric-title">Mean Squared Error (MSE)</span>
+                            <h4 id="mseMetric" class="metric-value">--</h4>
+                            <p class="metric-description">Average squared difference between estimator and actual price.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card stat-metric-card">
+                        <div class="metric-icon tertiary"><i data-lucide="binary"></i></div>
+                        <div class="metric-details">
+                            <span class="metric-title">Regression Equation</span>
+                            <div class="equation-code-wrapper">
+                                <code id="modelEquation">Price = Slope * Area + Intercept</code>
+                            </div>
+                            <p class="metric-description">Mathematical model representing the linear fit.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: DATASET MANAGER -->
+            <div id="tab-dataset" class="tab-panel">
+                <div class="dataset-layout-grid">
+                    <!-- Left: Control Actions (Add / CSV Options) -->
+                    <div class="glass-card dataset-controls">
+                        <div class="card-header">
+                            <div class="header-icon"><i data-lucide="plus-circle"></i></div>
+                            <h3>Add Data Point</h3>
+                        </div>
+                        <form id="addDataForm" class="add-point-form">
+                            <div class="form-group">
+                                <label for="newSqft">Property Area</label>
+                                <div class="input-with-unit">
+                                    <input type="number" id="newSqft" placeholder="e.g. 2800" required min="100" max="25000">
+                                    <span class="input-unit-badge" id="formAreaUnit">sq ft</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="newPrice">Actual Price (USD)</label>
+                                <div class="input-with-unit">
+                                    <input type="number" id="newPrice" placeholder="e.g. 450000" required min="1000" max="50000000">
+                                    <span class="input-unit-badge">$</span>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-submit">
+                                <i data-lucide="plus"></i><span>Insert Record</span>
+                            </button>
+                        </form>
+
+                        <div class="divider"><span>OR</span></div>
+
+                        <div class="csv-actions-section">
+                            <div class="card-header" style="padding: 0; margin-bottom: 1rem;">
+                                <div class="header-icon"><i data-lucide="file-spreadsheet"></i></div>
+                                <h3>Bulk CSV Operations</h3>
+                            </div>
+                            <div class="csv-buttons-group">
+                                <button type="button" class="btn-secondary" id="btnCsvExport">
+                                    <i data-lucide="download"></i><span>Export CSV</span>
+                                </button>
+                                <button type="button" class="btn-secondary" id="btnCsvImportTrigger">
+                                    <i data-lucide="upload"></i><span>Import CSV</span>
+                                </button>
+                                <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
+                            </div>
+                            <p class="csv-help-text">CSV should contain columns: <strong>sqft</strong> and <strong>price</strong></p>
+                        </div>
+                    </div>
+
+                    <!-- Right: Dataset Table Viewer -->
+                    <div class="glass-card dataset-table-container">
+                        <div class="table-header-controls">
+                            <div class="search-input-wrapper">
+                                <i data-lucide="search"></i>
+                                <input type="text" id="tableSearch" placeholder="Search area or price...">
+                            </div>
+                            <div class="table-title-area">
+                                <h3>Training Dataset</h3>
+                                <span class="subtle-badge" id="tableSampleBadge">0 records</span>
+                            </div>
+                        </div>
+
+                        <div class="table-scroll-wrapper">
+                            <table class="premium-table">
+                                <thead>
+                                    <tr>
+                                        <th class="sortable" data-sort="sqft">Area (<span class="table-unit-label">sq ft</span>) <i data-lucide="chevrons-up-down"></i></th>
+                                        <th class="sortable" data-sort="price">Actual Price ($) <i data-lucide="chevrons-up-down"></i></th>
+                                        <th class="action-column">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="datasetTableBody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                            <div id="tableEmptyState" class="empty-state-container" style="display: none;">
+                                <i data-lucide="inbox"></i>
+                                <p>No matching data records found.</p>
+                            </div>
+                        </div>
+
+                        <div class="table-pagination-controls">
+                            <button id="btnPrevPage" class="btn-pagination" disabled><i data-lucide="chevron-left"></i></button>
+                            <span id="paginationInfo" class="pagination-info">Page 1 of 1</span>
+                            <button id="btnNextPage" class="btn-pagination" disabled><i data-lucide="chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: ANALYTICS & PLOT -->
+            <div id="tab-analytics" class="tab-panel">
+                <div class="analytics-layout-grid">
+                    <!-- Top: Full Screen Regression Plot -->
+                    <div class="glass-card plot-full-card">
+                        <div class="card-header justify-between">
+                            <div class="title-with-icon">
+                                <div class="header-icon"><i data-lucide="line-chart"></i></div>
+                                <h3>Linear Regression Line Fit</h3>
+                            </div>
+                            <span class="plot-sub-badge">Dynamic Redraw</span>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="regressionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Bottom: Math Explainability -->
+                    <div class="glass-card explainability-card">
+                        <div class="card-header">
+                            <div class="header-icon"><i data-lucide="book-open"></i></div>
+                            <h3>Mathematical Walkthrough</h3>
+                        </div>
+                        <div class="explainability-content-grid">
+                            <div class="explain-text">
+                                <p>Linear regression models the relationship between a dependent variable (Price) and an independent variable (Size/Area) by fitting a linear equation to observed data.</p>
+                                
+                                <div class="math-block">
+                                    <span class="math-label">Standard Form:</span>
+                                    <div class="formula-display">
+                                        <span class="var-y">y</span> = <span class="var-m">m</span> · <span class="var-x">x</span> + <span class="var-c">c</span>
+                                    </div>
+                                </div>
+
+                                <div class="variable-legend">
+                                    <div class="legend-item"><span class="legend-color y-color"></span><strong>y (Dependent Variable):</strong> Predicted Price ($)</div>
+                                    <div class="legend-item"><span class="legend-color x-color"></span><strong>x (Independent Variable):</strong> Property Area (sq ft)</div>
+                                    <div class="legend-item"><span class="legend-color m-color"></span><strong>m (Slope / Coefficient):</strong> Price change per sq ft</div>
+                                    <div class="legend-item"><span class="legend-color c-color"></span><strong>c (Y-Intercept):</strong> Base valuation value when Area is zero</div>
+                                </div>
+                            </div>
+
+                            <div class="explain-live-calculation">
+                                <h4>Live Calculation for Selected Area:</h4>
+                                <div class="calc-box">
+                                    <div class="calc-row">
+                                        <span class="calc-lbl">Selected Size (x)</span>
+                                        <span class="calc-val"><strong id="calcSqft">0</strong> <span class="calc-unit">sq ft</span></span>
+                                    </div>
+                                    <div class="calc-row">
+                                        <span class="calc-lbl">Slope (m)</span>
+                                        <span class="calc-val" id="calcSlope">0.00</span>
+                                    </div>
+                                    <div class="calc-row">
+                                        <span class="calc-lbl">Intercept (c)</span>
+                                        <span class="calc-val" id="calcIntercept">0.00</span>
+                                    </div>
+                                    <div class="calc-divider"></div>
+                                    <div class="calc-formula-build">
+                                        <span class="calc-lbl">Price Projection:</span>
+                                        <div class="live-equation">
+                                            <span class="math-eq-text">$<span id="calcResultPrice">0</span> = (<span id="calcMathSlope">0</span> × <span id="calcMathSqft">0</span>) + <span id="calcMathIntercept">0</span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification System -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Chart.js and Lucide from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Core Application Logic -->
+    <script src="{{ url_for('static', filename='app.js') }}?v=2.0"></script>
+</body>
+</html>
